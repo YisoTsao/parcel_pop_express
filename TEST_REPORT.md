@@ -8,7 +8,7 @@
 | `bun run build` | **PASS** | `tsc -b`（strict）＋ Vite build |
 | `bun run validate:levels` | **PASS** | 30 關 schema / stable board / witness replay / 決定性 |
 | `bun run e2e`（除 30 關重播） | **PASS** 12/12 | 桌面滑鼠 ×6、模擬觸控 Pixel 7 ×6 |
-| `bun run e2e -- --grep "all 30"` | __E2E30__ | 桌面：30 關 witness 以鍵盤實際播放到勝利畫面 |
+| `bun run e2e -- --grep "all 30"` | **PASS** 1/1（9.0 分鐘） | 桌面：30 關 witness 以鍵盤實際播放到勝利畫面 |
 
 ## E2E 項目（desktop-mouse 與 mobile-touch 各一次）
 - U01 水平拖曳（拖 160px 仍只移一格）扣 1 步、盤面正確
