@@ -8,7 +8,16 @@ export interface RowAnchor {
   height: number;
 }
 
-export const useLayout = create<{ rows: RowAnchor[] | null; set(rows: RowAnchor[]): void }>((set) => ({
+/** Screen-space anchors of each board column: x centre, top/bottom rim, cell width. */
+export interface ColAnchor {
+  x: number;
+  topY: number;
+  bottomY: number;
+  width: number;
+}
+
+export const useLayout = create<{ rows: RowAnchor[] | null; cols: ColAnchor[] | null; set(rows: RowAnchor[], cols: ColAnchor[]): void }>((set) => ({
   rows: null,
-  set: (rows) => set({ rows }),
+  cols: null,
+  set: (rows, cols) => set({ rows, cols }),
 }));

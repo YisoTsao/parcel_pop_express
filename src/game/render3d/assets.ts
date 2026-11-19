@@ -1,7 +1,7 @@
 /** Shared geometries / materials / canvas textures. Created once, reused by every parcel. */
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { COLORS, type Color } from '../engine';
+import { COLORS, type Color, type Special } from '../engine';
 import { PARCEL_HEX, PARCEL_INK, PARCEL_SYMBOL } from '../../shared/parcelStyle';
 import { PARCEL_H, PARCEL_W } from './coords';
 
@@ -98,6 +98,137 @@ function slotTexture(): THREE.CanvasTexture {
   return t;
 }
 
+/** Special-crate overlay: bold white arrows / bomb with dark outline, readable on any colour. */
+function specialTexture(kind: Special): THREE.CanvasTexture {
+  const S = 256;
+  const [cv, ctx] = canvas(S);
+  ctx.clearRect(0, 0, S, S);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  // dark rounded badge so the stamp underneath is replaced by a clear "special" sign
+  ctx.fillStyle = 'rgba(52, 38, 60, 0.82)';
+  ctx.beginPath();
+  ctx.roundRect(S * 0.12, S * 0.12, S * 0.76, S * 0.76, S * 0.18);
+  ctx.fill();
+  ctx.strokeStyle = '#FFE58A';
+  ctx.lineWidth = 10;
+  ctx.stroke();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = '#FFFFFF';
+  const arrow = (horizontal: boolean) => {
+    ctx.save();
+    ctx.translate(S / 2, S / 2);
+    if (!horizontal) ctx.rotate(Math.PI / 2);
+    const L = S * 0.27;
+    ctx.lineWidth = 20;
+    ctx.beginPath();
+    ctx.moveTo(-L + 18, 0);
+    ctx.lineTo(L - 18, 0);
+    ctx.stroke();
+    for (const s of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(s * L, 0);
+      ctx.lineTo(s * (L - 34), -30);
+      ctx.lineTo(s * (L - 34), 30);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  };
+  if (kind === 'rocketRow') arrow(true);
+  else if (kind === 'rocketCol') arrow(false);
+  else {
+    ctx.beginPath();
+    ctx.arc(S * 0.47, S * 0.56, S * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.lineWidth = 12;
+    ctx.beginPath();
+    ctx.moveTo(S * 0.58, S * 0.4);
+    ctx.quadraticCurveTo(S * 0.64, S * 0.28, S * 0.72, S * 0.3);
+    ctx.stroke();
+    ctx.fillStyle = '#FFD45E';
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2;
+      const rr = i % 2 ? 9 : 22;
+      ctx.lineTo(S * 0.74 + Math.cos(a) * rr, S * 0.27 + Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+/** Taped crate lid: hp 2 = crossed tape, hp 1 = one torn strip. Big numeral for clarity. */
+function crateTopTexture(hp: 1 | 2): THREE.CanvasTexture {
+  const S = 256;
+  const [cv, ctx] = canvas(S);
+  ctx.fillStyle = '#C89A63';
+  ctx.fillRect(0, 0, S, S);
+  ctx.strokeStyle = 'rgba(120, 80, 40, 0.35)';
+  ctx.lineWidth = 3;
+  for (let y = 18; y < S; y += 26) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(S, y + 6);
+    ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(245, 225, 170, 0.92)';
+  ctx.save();
+  ctx.translate(S / 2, S / 2);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillRect(-S, -24, S * 2, 48);
+  if (hp === 2) {
+    ctx.rotate(Math.PI / 2);
+    ctx.fillRect(-S, -24, S * 2, 48);
+  }
+  ctx.restore();
+  ctx.fillStyle = '#5B3B22';
+  ctx.beginPath();
+  ctx.arc(S / 2, S / 2, 46, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#FFF4DC';
+  ctx.font = 'bold 64px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(hp), S / 2, S / 2 + 4);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+/** Frost pattern for the ice shell's lid. */
+function frostTexture(): THREE.CanvasTexture {
+  const S = 256;
+  const [cv, ctx] = canvas(S);
+  ctx.clearRect(0, 0, S, S);
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  for (const [x0, y0, x1, y1] of [
+    [30, 40, 120, 110],
+    [120, 110, 100, 200],
+    [120, 110, 220, 70],
+    [160, 180, 230, 220],
+    [40, 200, 90, 160],
+  ]) {
+    ctx.beginPath();
+    ctx.moveTo(x0!, y0!);
+    ctx.lineTo(x1!, y1!);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(10, 10, S - 20, S - 20);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
 export interface SharedAssets {
   boxGeo: THREE.BufferGeometry;
   topGeo: THREE.PlaneGeometry;
@@ -108,6 +239,12 @@ export interface SharedAssets {
   labelMat: THREE.MeshStandardMaterial;
   blobMat: THREE.MeshBasicMaterial;
   slotMat: THREE.MeshStandardMaterial;
+  specialMat: Record<Special, THREE.MeshStandardMaterial>;
+  crateMat: THREE.MeshStandardMaterial;
+  crateTopMat: Record<1 | 2, THREE.MeshStandardMaterial>;
+  iceGeo: THREE.BufferGeometry;
+  iceMat: THREE.MeshStandardMaterial;
+  frostMat: THREE.MeshStandardMaterial;
   dispose(): void;
 }
 
@@ -135,6 +272,19 @@ export function createAssets(): SharedAssets {
   const labelMat = new THREE.MeshStandardMaterial({ map: labelTexture(), transparent: true, roughness: 0.7, polygonOffset: true, polygonOffsetFactor: -2, depthWrite: false });
   const blobMat = new THREE.MeshBasicMaterial({ map: blobTexture(), transparent: true, depthWrite: false });
   const slotMat = new THREE.MeshStandardMaterial({ map: slotTexture(), transparent: true, roughness: 0.9 });
+  const overlay = (map: THREE.Texture) =>
+    new THREE.MeshStandardMaterial({ map, transparent: true, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -4, depthWrite: false });
+  const specialMat: Record<Special, THREE.MeshStandardMaterial> = {
+    rocketRow: overlay(specialTexture('rocketRow')),
+    rocketCol: overlay(specialTexture('rocketCol')),
+    bomb: overlay(specialTexture('bomb')),
+  };
+  const crateMat = new THREE.MeshStandardMaterial({ color: '#B98552', roughness: 0.85 });
+  const crateTopMat = { 1: overlay(crateTopTexture(1)), 2: overlay(crateTopTexture(2)) };
+  crateTopMat[1].transparent = crateTopMat[2].transparent = false;
+  const iceGeo = new RoundedBoxGeometry(PARCEL_W + 0.1, PARCEL_H + 0.1, PARCEL_W + 0.1, 3, 0.14);
+  const iceMat = new THREE.MeshStandardMaterial({ color: '#BFEFFF', transparent: true, opacity: 0.5, roughness: 0.08, metalness: 0.05, depthWrite: false });
+  const frostMat = overlay(frostTexture());
 
   return {
     boxGeo,
@@ -146,14 +296,21 @@ export function createAssets(): SharedAssets {
     labelMat,
     blobMat,
     slotMat,
+    specialMat,
+    crateMat,
+    crateTopMat,
+    iceGeo,
+    iceMat,
+    frostMat,
     dispose() {
+      iceGeo.dispose();
       [boxGeo, topGeo, labelGeo, blobGeo].forEach((g) => g.dispose());
       for (const c of COLORS) {
         boxMat[c].dispose();
         topMat[c].map?.dispose();
         topMat[c].dispose();
       }
-      [labelMat, blobMat, slotMat].forEach((m) => {
+      [labelMat, blobMat, slotMat, crateMat, iceMat, frostMat, crateTopMat[1], crateTopMat[2], ...Object.values(specialMat)].forEach((m) => {
         m.map?.dispose();
         m.dispose();
       });

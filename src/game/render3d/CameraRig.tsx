@@ -9,7 +9,8 @@ const TARGET = new THREE.Vector3(0, 0, 0);
 /** Board footprint incl. tray rim, plus horizontal room for the DOM row arrows. */
 const HALF_W = 3.5;
 const SIDE_MARGIN = 0.32;
-const VERT_MARGIN = 0.15;
+/** Room above/below the tray for the DOM column arrows. */
+const VERT_MARGIN = 0.5;
 
 /**
  * Orthographic, slight-tilt camera that always fits the full tray (never crops the outer
@@ -69,7 +70,15 @@ export function CameraRig() {
       const b = toScreen(0, PARCEL_H / 2, z + 0.5);
       return { y: (l.y + rr.y) / 2, left: l.x, right: rr.x, height: Math.abs(b.y - a.y) };
     });
-    setRows(rows);
+    const cols = Array.from({ length: 6 }, (_, c) => {
+      const x = boardToWorld(0, c).x;
+      const t = toScreen(x, PARCEL_H / 2, -3.55);
+      const b = toScreen(x, PARCEL_H / 2, 3.55);
+      const l = toScreen(x - 0.5, PARCEL_H / 2, 0);
+      const r = toScreen(x + 0.5, PARCEL_H / 2, 0);
+      return { x: (t.x + b.x) / 2, topY: t.y, bottomY: b.y, width: Math.abs(r.x - l.x) };
+    });
+    setRows(rows, cols);
   }, [camera, size.width, size.height, setRows]);
 
   return null;

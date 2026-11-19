@@ -1,0 +1,2240 @@
+{
+  "ruleVersion": "2.0.0",
+  "levels": [
+    {
+      "id": 1,
+      "name": "新手配送",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 9,
+      "seed": 7919,
+      "allowColumnMoves": false,
+      "board": [
+        "GGBYGY",
+        "RRGRYY",
+        "RYRRYB",
+        "BRGYBG",
+        "BRGBYG",
+        "RGYYRR"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 16
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        }
+      ],
+      "hint": "左右滑動整排貨箱，湊 3 個同色！"
+    },
+    {
+      "id": 2,
+      "name": "左右開弓",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 10,
+      "seed": 15838,
+      "allowColumnMoves": false,
+      "board": [
+        "YGYGRB",
+        "GGRRBG",
+        "YYBYBB",
+        "BBRGRR",
+        "YBYBYB",
+        "RGBBRR"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 16
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        }
+      ],
+      "hint": "最左邊的貨箱會從右邊轉回來。"
+    },
+    {
+      "id": 3,
+      "name": "雙色訂單",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 10,
+      "seed": 23757,
+      "allowColumnMoves": false,
+      "board": [
+        "RGRBBR",
+        "GGYRGG",
+        "BRBGYR",
+        "BGYYBB",
+        "RGGYYG",
+        "RBGBBG"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 32
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 28
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        }
+      ],
+      "hint": "兩個目標都要完成才算送達。"
+    },
+    {
+      "id": 4,
+      "name": "火箭出動",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 11,
+      "seed": 241134,
+      "allowColumnMoves": false,
+      "board": [
+        "GGBYGG",
+        "GRGGRR",
+        "RYYRRB",
+        "YRRBYG",
+        "BGRYGY",
+        "BYBGYY"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 24
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        }
+      ],
+      "hint": "一次連 4 個會做出火箭，消除時清掉整排！"
+    },
+    {
+      "id": 5,
+      "name": "炸彈包裹",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 12,
+      "seed": 39595,
+      "allowColumnMoves": false,
+      "board": [
+        "GYBGGB",
+        "RGRYYR",
+        "BYBYBG",
+        "YRYGYY",
+        "RYRYGG",
+        "YBYBRR"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 24
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 22
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        }
+      ],
+      "hint": "連 5 個或 L/T 形會做出炸彈，清掉 3×3。"
+    },
+    {
+      "id": 6,
+      "name": "直欄開放",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 11,
+      "seed": 47514,
+      "allowColumnMoves": true,
+      "board": [
+        "YYGRRY",
+        "GRGYBG",
+        "GYBRYG",
+        "BBRRGB",
+        "GGYYRB",
+        "YBBYRR"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 44
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        }
+      ],
+      "hint": "現在也可以上下滑動整欄了！"
+    },
+    {
+      "id": 7,
+      "name": "縱橫交錯",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 12,
+      "seed": 55433,
+      "allowColumnMoves": true,
+      "board": [
+        "RYRRBG",
+        "GRRYGG",
+        "GRYBBY",
+        "YGGYYR",
+        "BBRRGG",
+        "YGGYBB"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 34
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 23
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 5,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        }
+      ],
+      "hint": "橫滑、直滑交替使用，找出更多連線。"
+    },
+    {
+      "id": 8,
+      "name": "四色快遞",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 13,
+      "seed": 63352,
+      "allowColumnMoves": true,
+      "board": [
+        "BGBGGB",
+        "GGYGRB",
+        "RYRYBY",
+        "BYGBGB",
+        "GRGYGY",
+        "BRRBBY"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 51
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 46
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 30
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        }
+      ],
+      "hint": "盯緊數量最少的顏色。"
+    },
+    {
+      "id": 9,
+      "name": "大量出貨",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 13,
+      "seed": 71271,
+      "allowColumnMoves": true,
+      "board": [
+        "YGBGGY",
+        "YYRRYG",
+        "BBYYGY",
+        "GRGBRG",
+        "BBYYGY",
+        "YBRYBR"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 40
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        }
+      ],
+      "hint": "多做火箭和炸彈，一次清更多。"
+    },
+    {
+      "id": 10,
+      "name": "週末尖峰",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 14,
+      "seed": 79190,
+      "allowColumnMoves": true,
+      "board": [
+        "GGYYRB",
+        "BBGRGY",
+        "GYYRRY",
+        "RGBBGR",
+        "YGBYRR",
+        "YBGBBG"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 56
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 65
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 5,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        }
+      ],
+      "hint": "步數不多，先想再滑。"
+    },
+    {
+      "id": 11,
+      "name": "膠帶箱來了",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 12,
+      "seed": 87109,
+      "allowColumnMoves": true,
+      "board": [
+        "BGRRBR",
+        "BBRRBY",
+        "RGGBGG",
+        "GGY1RB",
+        "RBY1GY",
+        "Y1B1R1"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 5
+        },
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 36
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 5,
+          "direction": "down"
+        }
+      ],
+      "hint": "在膠帶箱旁邊消除就能拆開它。"
+    },
+    {
+      "id": 12,
+      "name": "拆箱達人",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 13,
+      "seed": 95028,
+      "allowColumnMoves": true,
+      "board": [
+        "RGGBYG",
+        "GGYRYY",
+        "1B1YG1",
+        "GRBRRY",
+        "YRRG1R",
+        "G1GBB1"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 6
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 70
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        }
+      ],
+      "hint": "膠帶箱會跟著整排一起滑動。"
+    },
+    {
+      "id": 13,
+      "name": "雙層膠帶",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 14,
+      "seed": 102947,
+      "allowColumnMoves": true,
+      "board": [
+        "YYBYGB",
+        "YBGGRG",
+        "GBGYRR",
+        "B2Y2G2",
+        "R2BBYY",
+        "RG2BBR"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 5
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 46
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 0,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        }
+      ],
+      "hint": "厚膠帶要消除兩次才會打開。"
+    },
+    {
+      "id": 14,
+      "name": "倉庫清空",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 15,
+      "seed": 110866,
+      "allowColumnMoves": true,
+      "board": [
+        "GYYGRY",
+        "2YRYG2",
+        "Y2GYG2",
+        "GBRRYB",
+        "GB22BR",
+        "2G22BR"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 9
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 59
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        }
+      ],
+      "hint": "火箭和炸彈也能炸開膠帶箱。"
+    },
+    {
+      "id": 15,
+      "name": "堆疊危機",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 16,
+      "seed": 118785,
+      "allowColumnMoves": true,
+      "board": [
+        "BYRBBG",
+        "BYGYBY",
+        "R2YGRB",
+        "RGYGG2",
+        "BGB2YY",
+        "222YRB"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 6
+        },
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 44
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        }
+      ],
+      "hint": "先清出空間，讓貨箱掉下來。"
+    },
+    {
+      "id": 16,
+      "name": "冷凍貨物",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 12,
+      "seed": 126704,
+      "allowColumnMoves": true,
+      "board": [
+        "RBBGYG",
+        "YYGRRB",
+        "BrYGrY",
+        "bRGBYG",
+        "yYGRGr",
+        "RBRBGY"
+      ],
+      "objectives": [
+        {
+          "type": "breakIce",
+          "count": 5
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 36
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        }
+      ],
+      "hint": "冰凍箱不能配對，旁邊消除就能解凍。"
+    },
+    {
+      "id": 17,
+      "name": "解凍專家",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 13,
+      "seed": 134623,
+      "allowColumnMoves": true,
+      "board": [
+        "BGYYGB",
+        "RGGRBr",
+        "YYBrBY",
+        "BYBBGy",
+        "GGRyYB",
+        "gRYRgY"
+      ],
+      "objectives": [
+        {
+          "type": "breakIce",
+          "count": 6
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 40
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        }
+      ],
+      "hint": "解凍後的貨箱就能正常消除。"
+    },
+    {
+      "id": 18,
+      "name": "冰庫深處",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 14,
+      "seed": 142542,
+      "allowColumnMoves": true,
+      "board": [
+        "RRYYRY",
+        "GBYBYG",
+        "rGgRRB",
+        "BGYyrG",
+        "GyryBY",
+        "ggYByG"
+      ],
+      "objectives": [
+        {
+          "type": "breakIce",
+          "count": 10
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 32
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        }
+      ],
+      "hint": "冰凍箱集中在底部。"
+    },
+    {
+      "id": 19,
+      "name": "冰火交加",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 15,
+      "seed": 150461,
+      "allowColumnMoves": true,
+      "board": [
+        "YYGGrg",
+        "YbRGrr",
+        "RRByYy",
+        "YGBBYR",
+        "GrYRGB",
+        "YRYRGR"
+      ],
+      "objectives": [
+        {
+          "type": "breakIce",
+          "count": 8
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 58
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        }
+      ],
+      "hint": "炸彈能一次解凍一大片。"
+    },
+    {
+      "id": 20,
+      "name": "急凍快遞",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 16,
+      "seed": 158380,
+      "allowColumnMoves": true,
+      "board": [
+        "GRggGR",
+        "BgGbYG",
+        "ybgYGB",
+        "YYyGBB",
+        "gbBRRY",
+        "YgYbYb"
+      ],
+      "objectives": [
+        {
+          "type": "breakIce",
+          "count": 12
+        },
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 34
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        }
+      ],
+      "hint": "步數吃緊，善用連鎖。"
+    },
+    {
+      "id": 21,
+      "name": "混裝貨櫃",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 15,
+      "seed": 166299,
+      "allowColumnMoves": true,
+      "board": [
+        "BYYGGY",
+        "RRYBBR",
+        "GyRyyR",
+        "YYGR1g",
+        "Y1RB1B",
+        "B1YGGY"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 4
+        },
+        {
+          "type": "breakIce",
+          "count": 4
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 59
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        }
+      ],
+      "hint": "膠帶箱和冰凍箱一起出現了。"
+    },
+    {
+      "id": 22,
+      "name": "三方訂單",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 16,
+      "seed": 174218,
+      "allowColumnMoves": true,
+      "board": [
+        "rByGRb",
+        "GYBGYg",
+        "1gYYGG",
+        "Y1YGGY",
+        "YRGB1Y",
+        "B1YBYG"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 4
+        },
+        {
+          "type": "breakIce",
+          "count": 4
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 64
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        }
+      ],
+      "hint": "三個目標同時進行。"
+    },
+    {
+      "id": 23,
+      "name": "重型包裹",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 16,
+      "seed": 182137,
+      "allowColumnMoves": true,
+      "board": [
+        "yGBYRB",
+        "rGgrRY",
+        "RYBrBb",
+        "Y222B2",
+        "RYR2RY",
+        "YGGRRY"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 5
+        },
+        {
+          "type": "breakIce",
+          "count": 5
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 56
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 5,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 5,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        }
+      ],
+      "hint": "厚膠帶加上冰，先處理最難的。"
+    },
+    {
+      "id": 24,
+      "name": "連鎖倉庫",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 17,
+      "seed": 190056,
+      "allowColumnMoves": true,
+      "board": [
+        "111YGY",
+        "GBRY1B",
+        "YG1RR1",
+        "YRRYGY",
+        "R1GBGB",
+        "1RGGBB"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 7
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 56
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "down"
+        }
+      ],
+      "hint": "從底部消除最容易觸發連鎖。"
+    },
+    {
+      "id": 25,
+      "name": "冰封倉庫",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 17,
+      "seed": 197975,
+      "allowColumnMoves": true,
+      "board": [
+        "rGyGgB",
+        "YBYGGb",
+        "1BGYRB",
+        "GYb1Y1",
+        "GBY1gR",
+        "1y1Ryy"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 6
+        },
+        {
+          "type": "breakIce",
+          "count": 8
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 89
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "left"
+        }
+      ],
+      "hint": "冰凍箱和膠帶箱擠滿了倉庫。"
+    },
+    {
+      "id": 26,
+      "name": "午夜加班",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 18,
+      "seed": 205894,
+      "allowColumnMoves": true,
+      "board": [
+        "RRYGRY",
+        "BGBBRY",
+        "BRBYBR",
+        "GGYYBY",
+        "GRBBRG",
+        "BBRBGG"
+      ],
+      "objectives": [
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 70
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 79
+        },
+        {
+          "type": "collectColor",
+          "color": "G",
+          "count": 81
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 0,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        }
+      ],
+      "hint": "每一步都要有價值。"
+    },
+    {
+      "id": 27,
+      "name": "鐵箱考驗",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 18,
+      "seed": 213813,
+      "allowColumnMoves": true,
+      "board": [
+        "BBGYRG",
+        "RRBGYB",
+        "BGY2GB",
+        "RGBR2R",
+        "2Y2GY2",
+        "R22RY2"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 8
+        },
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 49
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 5,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        }
+      ],
+      "hint": "大量厚膠帶，炸彈是你的好朋友。"
+    },
+    {
+      "id": 28,
+      "name": "極地物流",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 18,
+      "seed": 221732,
+      "allowColumnMoves": true,
+      "board": [
+        "YRGYgR",
+        "gbrBBy",
+        "gYBRYY",
+        "RYYGRb",
+        "GgRGBG",
+        "rbrBGb"
+      ],
+      "objectives": [
+        {
+          "type": "breakIce",
+          "count": 12
+        },
+        {
+          "type": "collectColor",
+          "color": "B",
+          "count": 64
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 5,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 5,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        }
+      ],
+      "hint": "滿倉冰凍箱，打通一條路。"
+    },
+    {
+      "id": 29,
+      "name": "全面封鎖",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 20,
+      "seed": 229651,
+      "allowColumnMoves": true,
+      "board": [
+        "rYyyGY",
+        "YYBBgB",
+        "22yR2g",
+        "2YRRBg",
+        "2GbY2R",
+        "GRRGYY"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 6
+        },
+        {
+          "type": "breakIce",
+          "count": 8
+        },
+        {
+          "type": "collectColor",
+          "color": "R",
+          "count": 84
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 0,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 5,
+          "direction": "down"
+        }
+      ],
+      "hint": "三種目標加上兩種障礙。"
+    },
+    {
+      "id": 30,
+      "name": "傳說快遞員",
+      "width": 6,
+      "height": 6,
+      "moveLimit": 20,
+      "seed": 237570,
+      "allowColumnMoves": true,
+      "board": [
+        "BBYyrb",
+        "BryG2Y",
+        "RR2RYR",
+        "RG22YY",
+        "y2y22g",
+        "Gg2YGg"
+      ],
+      "objectives": [
+        {
+          "type": "clearCrates",
+          "count": 8
+        },
+        {
+          "type": "breakIce",
+          "count": 10
+        },
+        {
+          "type": "collectColor",
+          "color": "Y",
+          "count": 79
+        }
+      ],
+      "witnessMoves": [
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 1,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "right"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 3,
+          "direction": "right"
+        },
+        {
+          "line": "col",
+          "index": 1,
+          "direction": "down"
+        },
+        {
+          "line": "col",
+          "index": 2,
+          "direction": "up"
+        },
+        {
+          "line": "col",
+          "index": 3,
+          "direction": "up"
+        },
+        {
+          "line": "row",
+          "index": 4,
+          "direction": "left"
+        },
+        {
+          "line": "row",
+          "index": 2,
+          "direction": "left"
+        },
+        {
+          "line": "col",
+          "index": 4,
+          "direction": "up"
+        }
+      ],
+      "hint": "最終關卡！完成就是傳說。"
+    }
+  ]
+}

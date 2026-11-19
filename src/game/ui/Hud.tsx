@@ -1,6 +1,5 @@
 import { useGame } from '../state/gameStore';
-import { ParcelIcon } from './ParcelIcon';
-import { PARCEL_NAME } from '../../shared/parcelStyle';
+import { GoalIcon, goalName } from './ParcelIcon';
 
 export function ObjectiveBar() {
   const hud = useGame((s) => s.hud);
@@ -14,9 +13,9 @@ export function ObjectiveBar() {
       </div>
       <ul className="goal-list">
         {hud.progress.map((p) => (
-          <li key={p.color} className={`goal ${p.done ? 'done' : ''}`} data-testid={`goal-${p.color}`}>
-            <ParcelIcon color={p.color} size={34} />
-            <span className="goal-count" aria-label={`${PARCEL_NAME[p.color]} ${p.current} / ${p.target}`}>
+          <li key={p.color ?? p.type} className={`goal ${p.done ? 'done' : ''}`} data-testid={`goal-${p.color ?? p.type}`}>
+            <GoalIcon type={p.type} color={p.color} size={34} />
+            <span className="goal-count" aria-label={`${goalName(p.type, p.color)} ${p.current} / ${p.target}`}>
               {p.current}/{p.target}
             </span>
             {p.done && <span className="check" aria-hidden>✓</span>}

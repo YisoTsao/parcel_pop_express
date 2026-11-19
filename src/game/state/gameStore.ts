@@ -11,10 +11,11 @@ import {
   createGameState,
   EngineError,
   objectiveProgress,
-  type ColorCount,
+  cloneProgress,
   type GameState,
   type Move,
   type ObjectiveProgress,
+  type Progress,
   type TurnEvent,
 } from '../engine';
 import { loadSave, writeSave, type Quality, type SaveData } from '../../shared/storage';
@@ -32,8 +33,14 @@ export interface PendingTurn {
 
 export interface HudView {
   remainingMoves: number;
-  collected: ColorCount;
+  /** Raw counters (collected colours, crates cleared, ice broken) as shown so far. */
+  counters: Progress;
   progress: ObjectiveProgress[];
+}
+
+export interface Selection {
+  r: number;
+  c: number;
 }
 
 export interface GameStore {
@@ -47,7 +54,8 @@ export interface GameStore {
   turnSeq: number;
   pending: PendingTurn | null;
   combo: { n: number; key: number } | null;
-  selectedRow: number;
+  /** Selected cell: its row (and column, when column moves are allowed) is framed. */
+  selected: Selection;
   engineError: string | null;
   save: SaveData;
   showSettings: boolean;
@@ -56,11 +64,11 @@ export interface GameStore {
   startLevel(id: number): void;
   restart(): void;
   nextLevel(): void;
-  selectRow(row: number): void;
+  select(r: number, c: number): void;
   submitMove(move: Move): boolean;
   /** Presenter callbacks (ignored if stale). */
   onHudMoves(turnId: number, remainingMoves: number): void;
-  onHudObjectives(turnId: number, collected: ColorCount): void;
+  onHudProgress(turnId: number, progress: Progress): void;
   onCombo(turnId: number, n: number): void;
   finishTurn(turnId: number): void;
   setSettings(patch: Partial<Pick<SaveData, 'soundEnabled' | 'reducedMotion' | 'graphicsQuality'>>): void;
@@ -68,7 +76,7 @@ export interface GameStore {
 }
 
 function hudFrom(s: GameState): HudView {
-  return { remainingMoves: s.remainingMoves, collected: { ...s.collected }, progress: objectiveProgress(s.objectives, s.collected) };
+  return { remainingMoves: s.remainingMoves, counters: cloneProgress(s.progress), progress: objectiveProgress(s.objectives, s.progress) };
 }
 
 const initialSave = loadSave();
@@ -84,7 +92,7 @@ export const useGame = create<GameStore>((set, get) => ({
   turnSeq: 0,
   pending: null,
   combo: null,
-  selectedRow: 3,
+  selected: { r: 3, c: 2 },
   engineError: null,
   save: initialSave,
   showSettings: false,
@@ -125,8 +133,8 @@ export const useGame = create<GameStore>((set, get) => ({
     else get().goto('select');
   },
 
-  selectRow(row) {
-    if (row >= 0 && row < 6) set({ selectedRow: row });
+  select(r, c) {
+    if (r >= 0 && r < 6 && c >= 0 && c < 6) set({ selected: { r, c } });
   },
 
   submitMove(move) {
@@ -135,7 +143,13 @@ export const useGame = create<GameStore>((set, get) => ({
     try {
       const { nextState, events } = applyMove(game, move);
       const id = get().turnSeq + 1;
-      set({ game: nextState, phase: 'resolving', turnSeq: id, pending: { id, session, events, nextState }, selectedRow: move.row });
+      set({
+        game: nextState,
+        phase: 'resolving',
+        turnSeq: id,
+        pending: { id, session, events, nextState },
+        selected: move.line === 'row' ? { ...get().selected, r: move.index } : { ...get().selected, c: move.index },
+      });
       return true;
     } catch (e) {
       const msg = e instanceof EngineError ? `${e.message}\n${JSON.stringify({ levelId: game.levelId, ...e.detail })}` : String(e);
@@ -151,10 +165,10 @@ export const useGame = create<GameStore>((set, get) => ({
     set({ hud: { ...hud, remainingMoves } });
   },
 
-  onHudObjectives(turnId, collected) {
+  onHudProgress(turnId, progress) {
     const { pending, hud, game } = get();
     if (!pending || pending.id !== turnId || !hud || !game) return;
-    set({ hud: { ...hud, collected: { ...collected }, progress: objectiveProgress(game.objectives, collected) } });
+    set({ hud: { ...hud, counters: cloneProgress(progress), progress: objectiveProgress(game.objectives, progress) } });
   },
 
   onCombo(turnId, n) {

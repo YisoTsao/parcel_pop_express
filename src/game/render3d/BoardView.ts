@@ -6,29 +6,39 @@
  */
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import type { Color, ColorCount, StableBoard, TurnEvent } from '../engine';
+import { boardToRows, cloneProgress, type Move, type Progress, type StableBoard, type Tile, type TurnEvent } from '../engine';
 import { PARCEL_HEX } from '../../shared/parcelStyle';
 import { playSfx } from '../../shared/audio';
 import type { SharedAssets } from './assets';
 import { boardToWorld, PARCEL_H, PARCEL_Y } from './coords';
 import { ease, Tweener } from './tween';
-import { buildTimeline, gridColors, gridFromBoard, IdSource, type PieceGrid, type TimelineStep } from './timelineModel';
+import { buildTimeline, gridFromBoard, gridRows, IdSource, type PieceGrid, type TimelineStep } from './timelineModel';
 
 interface Piece {
   id: number;
-  color: Color;
+  tile: Tile;
   group: THREE.Group;
   box: THREE.Mesh;
   top: THREE.Mesh;
   label: THREE.Mesh;
   blob: THREE.Mesh;
+  badge: THREE.Mesh;
+  ice: THREE.Mesh;
+  frost: THREE.Mesh;
 }
+
+export type DragLine = { line: 'row' | 'col'; index: number };
 
 export interface PlayHooks {
   onShift(): void;
-  onObjectives(collected: ColorCount): void;
+  /** Running objective progress, advanced as clears are shown. */
+  onProgress(progress: Progress): void;
   onCombo(n: number): void;
 }
+
+const CRATE_HEX = '#B98552';
+const ICE_HEX = '#D8F6FF';
+const BEAM_POOL = 6;
 
 const PARTICLE_POOL = 160;
 
@@ -72,10 +82,14 @@ export class BoardView {
   private blobShadows = false;
 
   private readonly highlight: THREE.Mesh;
+  private readonly colHighlight: THREE.Mesh;
   private highlightTarget = 0;
+  private colHighlightTarget = 0;
   private highlightRow = -1;
-  private dragRow = -1;
+  private highlightCol = -1;
+  private drag: DragLine | null = null;
   private dragOffset = 0;
+  private readonly beams: THREE.Mesh[] = [];
 
   private readonly particles: THREE.InstancedMesh;
   private readonly pPos = new Float32Array(PARTICLE_POOL * 3);
@@ -99,7 +113,27 @@ export class BoardView {
     this.highlight.position.y = PARCEL_H + 0.012;
     this.highlight.renderOrder = 1;
     this.root.add(this.highlight);
-    this.disposables.push(hlGeo, hlMat, hlMat.map!);
+    const colGeo = hlGeo.clone();
+    colGeo.rotateY(Math.PI / 2);
+    this.colHighlight = new THREE.Mesh(colGeo, hlMat.clone());
+    this.colHighlight.position.y = PARCEL_H + 0.014;
+    this.colHighlight.renderOrder = 1;
+    this.root.add(this.colHighlight);
+    this.disposables.push(hlGeo, hlMat, hlMat.map!, colGeo, this.colHighlight.material as THREE.Material);
+
+    // rocket beams (row / column flashes), reused
+    const beamGeo = new THREE.PlaneGeometry(1, 1);
+    beamGeo.rotateX(-Math.PI / 2);
+    for (let i = 0; i < BEAM_POOL; i++) {
+      const m = new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({ color: '#FFF3B8', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+      m.position.y = PARCEL_H + 0.08;
+      m.visible = false;
+      m.renderOrder = 3;
+      this.beams.push(m);
+      this.root.add(m);
+      this.disposables.push(m.material as THREE.Material);
+    }
+    this.disposables.push(beamGeo);
 
     const pGeo = new THREE.BoxGeometry(0.13, 0.13, 0.13);
     const pMat = new THREE.MeshStandardMaterial({ roughness: 0.5 });
@@ -168,7 +202,7 @@ export class BoardView {
   setQuality(opts: { particlesPerBatch: number; shadowMap: number; contactShadows: boolean }): void {
     this.particleCap = opts.particlesPerBatch;
     this.blobShadows = opts.shadowMap === 0 && !opts.contactShadows;
-    for (const p of this.pieces.values()) {
+    for (const p of [...this.pieces.values(), ...this.pool]) {
       p.blob.visible = this.blobShadows;
       p.box.castShadow = opts.shadowMap > 0;
     }
@@ -179,28 +213,34 @@ export class BoardView {
   }
 
   // ---------- piece pool ----------
-  private acquire(id: number, color: Color): Piece {
+  private acquire(id: number, tile: Tile): Piece {
     let p = this.pool.pop();
     if (!p) {
       const group = new THREE.Group();
-      const box = new THREE.Mesh(this.assets.boxGeo, this.assets.boxMat[color]);
+      const box = new THREE.Mesh(this.assets.boxGeo, this.assets.crateMat);
       box.castShadow = true;
       box.receiveShadow = true;
-      const top = new THREE.Mesh(this.assets.topGeo, this.assets.topMat[color]);
+      const top = new THREE.Mesh(this.assets.topGeo, this.assets.labelMat);
       top.position.y = PARCEL_H / 2 + 0.003;
       top.renderOrder = 2;
+      const badge = new THREE.Mesh(this.assets.topGeo, this.assets.specialMat.bomb);
+      badge.position.y = PARCEL_H / 2 + 0.006;
+      badge.renderOrder = 3;
       const label = new THREE.Mesh(this.assets.labelGeo, this.assets.labelMat);
       label.position.set(0.12, -0.02, 0.86 / 2 + 0.003);
       label.renderOrder = 2;
       const blob = new THREE.Mesh(this.assets.blobGeo, this.assets.blobMat);
       blob.position.y = -PARCEL_Y + 0.008;
-      group.add(box, top, label, blob);
-      p = { id, color, group, box, top, label, blob };
+      const ice = new THREE.Mesh(this.assets.iceGeo, this.assets.iceMat);
+      ice.renderOrder = 4;
+      const frost = new THREE.Mesh(this.assets.topGeo, this.assets.frostMat);
+      frost.position.y = PARCEL_H / 2 + 0.056;
+      frost.renderOrder = 5;
+      group.add(box, top, badge, label, blob, ice, frost);
+      p = { id, tile, group, box, top, label, blob, badge, ice, frost };
     }
     p.id = id;
-    p.color = color;
-    p.box.material = this.assets.boxMat[color];
-    p.top.material = this.assets.topMat[color];
+    this.applyTile(p, tile);
     p.blob.visible = this.blobShadows;
     p.group.scale.set(1, 1, 1);
     p.group.rotation.set(0, 0, 0);
@@ -208,6 +248,27 @@ export class BoardView {
     this.pieces.set(id, p);
     this.piecesLayer.add(p.group);
     return p;
+  }
+
+  /** Swap shared materials / overlays to show a tile. */
+  private applyTile(p: Piece, tile: Tile): void {
+    p.tile = tile;
+    if (tile.kind === 'crate') {
+      p.box.material = this.assets.crateMat;
+      p.top.material = this.assets.crateTopMat[tile.hp >= 2 ? 2 : 1];
+      p.label.visible = false;
+      p.badge.visible = false;
+      p.ice.visible = p.frost.visible = false;
+    } else {
+      p.box.material = this.assets.boxMat[tile.color];
+      p.top.material = this.assets.topMat[tile.color];
+      p.label.visible = true;
+      p.badge.visible = !!tile.special;
+      if (tile.special) p.badge.material = this.assets.specialMat[tile.special];
+      p.ice.visible = p.frost.visible = !!tile.ice;
+      p.ice.scale.setScalar(1);
+      p.frost.scale.setScalar(1);
+    }
   }
 
   private release(p: Piece): void {
@@ -231,53 +292,62 @@ export class BoardView {
     this.grid.forEach((row, r) =>
       row.forEach((ref, c) => {
         if (!ref) return;
-        this.place(this.acquire(ref.id, ref.color), r, c);
+        this.place(this.acquire(ref.id, ref.tile), r, c);
       }),
     );
-    this.dragRow = -1;
+    this.drag = null;
     this.dragOffset = 0;
     this.ring.visible = false;
+    for (const b of this.beams) b.visible = false;
   }
 
   /** Returns true iff the presenter's logical grid equals `board`. */
   matches(board: StableBoard): boolean {
-    return JSON.stringify(gridColors(this.grid)) === JSON.stringify(board);
+    return JSON.stringify(gridRows(this.grid)) === JSON.stringify(boardToRows(board));
   }
 
   // ---------- input feedback ----------
-  setHighlight(row: number, strength: number): void {
+  /** Frame the selected row and (when columns can move) the selected column. -1 hides. */
+  setHighlight(row: number, col: number, rowStrength: number, colStrength = rowStrength): void {
     this.highlightRow = row;
-    this.highlightTarget = row < 0 ? 0 : strength;
+    this.highlightCol = col;
+    this.highlightTarget = row < 0 ? 0 : rowStrength;
+    this.colHighlightTarget = col < 0 ? 0 : colStrength;
     if (row >= 0) this.highlight.position.z = boardToWorld(row, 0).z;
+    if (col >= 0) this.colHighlight.position.x = boardToWorld(0, col).x;
   }
 
-  setDragOffset(row: number, offset: number): void {
-    if (this.dragRow >= 0 && this.dragRow !== row) this.layoutRow(this.dragRow, 0);
-    this.dragRow = row;
-    this.dragOffset = offset;
-    if (row >= 0) this.layoutRow(row, offset);
+  setDragOffset(line: DragLine | null, offset: number): void {
+    if (this.drag && (!line || this.drag.line !== line.line || this.drag.index !== line.index)) this.layoutLine(this.drag, 0);
+    this.drag = line;
+    this.dragOffset = line ? offset : 0;
+    if (line) this.layoutLine(line, offset);
   }
 
   /** Spring a cancelled drag back to rest. */
   async releaseDrag(): Promise<void> {
-    const row = this.dragRow;
+    const line = this.drag;
     const from = this.dragOffset;
-    this.dragRow = -1;
+    this.drag = null;
     this.dragOffset = 0;
-    if (row < 0 || from === 0) return;
+    if (!line || from === 0) return;
     const token = this.token;
     await this.tw.to(this.dur(0.16), (t) => {
-      if (token === this.token) this.layoutRow(row, from * (1 - t));
+      if (token === this.token) this.layoutLine(line, from * (1 - t));
     }, ease.outBack);
   }
 
-  private layoutRow(row: number, offset: number): void {
-    this.grid[row]?.forEach((ref, c) => {
+  private layoutLine(line: DragLine, offset: number): void {
+    for (let k = 0; k < 6; k++) {
+      const r = line.line === 'row' ? line.index : k;
+      const c = line.line === 'row' ? k : line.index;
+      const ref = this.grid[r]?.[c];
       const p = ref && this.pieces.get(ref.id);
-      if (!p) return;
-      const w = boardToWorld(row, c);
-      p.group.position.x = w.x + offset;
-    });
+      if (!p) continue;
+      const w = boardToWorld(r, c);
+      if (line.line === 'row') p.group.position.x = w.x + offset;
+      else p.group.position.z = w.z + offset;
+    }
   }
 
   private dur(s: number): number {
@@ -285,13 +355,13 @@ export class BoardView {
   }
 
   // ---------- turn playback ----------
-  async play(events: TurnEvent[], startCollected: ColorCount, hooks: PlayHooks): Promise<'done' | 'cancelled'> {
-    const running: ColorCount = { ...startCollected };
+  async play(events: TurnEvent[], startProgress: Progress, hooks: PlayHooks): Promise<'done' | 'cancelled'> {
+    const running = cloneProgress(startProgress);
     const token = ++this.token;
     const alive = () => token === this.token;
     const { steps, grid } = buildTimeline(this.grid, events, this.ids);
     const startOffset = this.dragOffset;
-    this.dragRow = -1;
+    this.drag = null;
     this.dragOffset = 0;
     this.grid = grid;
     let pendingFall: Promise<unknown> | null = null;
@@ -308,8 +378,10 @@ export class BoardView {
           if (step.cascadeIndex >= 2) hooks.onCombo(step.cascadeIndex);
           await this.animRemove(step);
           if (!alive()) return 'cancelled';
-          for (const pc of step.pieces) running[pc.color]++;
-          hooks.onObjectives({ ...running });
+          for (const pc of step.removed) if (pc.tile.kind === 'parcel') running.collected[pc.tile.color]++;
+          running.cratesCleared += step.crateHits.filter((h) => h.hp <= 0).length;
+          running.iceBroken += step.thawed.length;
+          hooks.onProgress(cloneProgress(running));
           break;
         case 'fall':
           pendingFall = this.animFall(step);
@@ -321,7 +393,7 @@ export class BoardView {
           if (alive()) playSfx('land');
           break;
         case 'objectives':
-          hooks.onObjectives(step.collected);
+          hooks.onProgress(step.progress);
           break;
         case 'turnEnd':
           break;
@@ -339,29 +411,37 @@ export class BoardView {
   }
 
   private animShift(step: Extract<TimelineStep, { kind: 'shift' }>, startOffset: number): Promise<unknown> {
-    const dir = step.direction === 'left' ? -1 : 1;
+    const m: Move = step.move;
+    const isRow = m.line === 'row';
+    const dir = m.direction === 'left' || m.direction === 'up' ? -1 : 1;
     const D = this.dur(0.2);
+    const cellAt = (k: number) => (isRow ? boardToWorld(m.index, k) : boardToWorld(k, m.index));
+    const axis = (w: { x: number; z: number }) => (isRow ? w.x : w.z);
+    const setAxis = (p: Piece, v: number) => {
+      if (isRow) p.group.position.x = v;
+      else p.group.position.z = v;
+    };
     const jobs: Promise<unknown>[] = [];
-    step.order.forEach((id, newC) => {
+    step.order.forEach((id, newK) => {
       const p = this.pieces.get(id);
       if (!p) return;
-      const target = boardToWorld(step.row, newC).x;
+      const target = axis(cellAt(newK));
       if (id === step.wrapId) {
         // leave through one edge, re-enter from the other (clear wrap visual)
-        const oldC = step.direction === 'left' ? 0 : 5;
-        const fromX = boardToWorld(step.row, oldC).x + startOffset;
-        const outX = boardToWorld(step.row, oldC).x + dir * 0.9;
-        const inX = target - dir * 0.9;
+        const oldK = dir < 0 ? 0 : 5;
+        const fromV = axis(cellAt(oldK)) + startOffset;
+        const outV = axis(cellAt(oldK)) + dir * 0.9;
+        const inV = target - dir * 0.9;
         jobs.push(
           this.tw
             .to(D / 2, (t) => {
-              p.group.position.x = fromX + (outX - fromX) * t;
+              setAxis(p, fromV + (outV - fromV) * t);
               p.group.scale.setScalar(1 - 0.85 * t);
             }, ease.linear)
             .then((ok) =>
               ok
                 ? this.tw.to(D / 2, (t) => {
-                    p.group.position.x = inX + (target - inX) * t;
+                    setAxis(p, inV + (target - inV) * t);
                     p.group.scale.setScalar(0.15 + 0.85 * t);
                   }, ease.outCubic)
                 : false,
@@ -371,8 +451,10 @@ export class BoardView {
         const from = target - dir + startOffset;
         jobs.push(
           this.tw.to(D, (t) => {
-            p.group.position.x = from + (target - from) * t;
-            p.group.rotation.z = this.reducedMotion ? 0 : -dir * 0.12 * Math.sin(t * Math.PI);
+            setAxis(p, from + (target - from) * t);
+            const tilt = this.reducedMotion ? 0 : dir * 0.12 * Math.sin(t * Math.PI);
+            if (isRow) p.group.rotation.z = -tilt;
+            else p.group.rotation.x = tilt;
           }, ease.outBack),
         );
       }
@@ -382,13 +464,13 @@ export class BoardView {
 
   private animRemove(step: Extract<TimelineStep, { kind: 'remove' }>): Promise<unknown> {
     const D = this.dur(0.18);
-    playSfx(step.cascadeIndex >= 2 ? 'combo' : 'pop', step.cascadeIndex);
-    if (step.cascadeIndex >= 2 && !this.reducedMotion) this.shockwave();
-    const perPiece = Math.max(1, Math.floor(this.particleCap / Math.max(1, step.pieces.length)));
-    const jobs = step.pieces.map(({ id, color, at }) => {
-      const p = this.pieces.get(id);
-      if (!p) return Promise.resolve(true);
-      return this.tw
+    playSfx(step.cascadeIndex >= 2 || step.blasts.length > 0 ? 'combo' : 'pop', Math.max(step.cascadeIndex, step.blasts.length + 1));
+    if ((step.cascadeIndex >= 2 || step.blasts.length > 0) && !this.reducedMotion) this.shockwave();
+    for (const b of step.blasts) this.blastFx(b.special, b.origin);
+    const total = step.removed.length + step.crateHits.length + step.thawed.length;
+    const perPiece = Math.max(1, Math.floor(this.particleCap / Math.max(1, total)));
+    const pop = (p: Piece, at: { r: number; c: number }, hex: string) =>
+      this.tw
         .to(D, (t) => {
           // 0.9 squash -> 1.1 swell -> vanish
           const s = t < 0.35 ? 1 - 0.1 * (t / 0.35) : t < 0.6 ? 0.9 + 0.25 * ((t - 0.35) / 0.25) : 1.15 * (1 - (t - 0.6) / 0.4);
@@ -396,11 +478,86 @@ export class BoardView {
         }, ease.linear)
         .then(() => {
           const w = boardToWorld(at.r, at.c);
-          this.burst(w.x, w.z, color, perPiece);
+          this.burst(w.x, w.z, hex, perPiece);
           this.release(p);
         });
+    const jobs: Promise<unknown>[] = step.removed.map(({ id, tile, at }) => {
+      const p = this.pieces.get(id);
+      if (!p) return Promise.resolve(true);
+      return pop(p, at, tile.kind === 'parcel' ? PARCEL_HEX[tile.color] : CRATE_HEX);
     });
+    for (const h of step.crateHits) {
+      const p = this.pieces.get(h.id);
+      if (!p) continue;
+      if (h.hp <= 0) {
+        jobs.push(pop(p, h.at, CRATE_HEX));
+        continue;
+      }
+      // damaged: knock + swap to the 1-hp lid
+      jobs.push(
+        this.tw.to(D, (t) => {
+          p.group.rotation.y = this.reducedMotion ? 0 : Math.sin(t * Math.PI * 3) * 0.15 * (1 - t);
+          p.group.scale.setScalar(1 - 0.12 * Math.sin(t * Math.PI));
+          if (t >= 0.5 && p.tile.kind === 'crate' && p.tile.hp !== h.hp) this.applyTile(p, { kind: 'crate', hp: h.hp });
+        }, ease.linear),
+      );
+      const w = boardToWorld(h.at.r, h.at.c);
+      this.burst(w.x, w.z, CRATE_HEX, Math.max(1, perPiece >> 1));
+    }
+    for (const th of step.thawed) {
+      const p = this.pieces.get(th.id);
+      if (!p || p.tile.kind !== 'parcel') continue;
+      const { ice: _ice, ...thawedTile } = p.tile;
+      jobs.push(
+        this.tw
+          .to(D, (t) => {
+            p.ice.scale.setScalar(1 + 0.25 * t);
+            p.frost.scale.setScalar(1 + 0.25 * t);
+          }, ease.outCubic)
+          .then(() => this.applyTile(p, thawedTile)),
+      );
+      const w = boardToWorld(th.at.r, th.at.c);
+      this.burst(w.x, w.z, ICE_HEX, perPiece);
+    }
+    for (const cr of step.created) {
+      const p = this.pieces.get(cr.id);
+      if (!p || p.tile.kind !== 'parcel') continue;
+      const tile: Tile = { kind: 'parcel', color: p.tile.color, special: cr.special };
+      jobs.push(
+        this.tw.to(this.dur(0.26), (t) => {
+          if (t >= 0.3 && p.badge.visible === false) this.applyTile(p, tile);
+          p.group.scale.setScalar(1 + 0.25 * Math.sin(t * Math.PI));
+          p.group.rotation.y = this.reducedMotion ? 0 : t * Math.PI * 2;
+        }, ease.outCubic).then(() => {
+          p.group.rotation.y = 0;
+          this.applyTile(p, tile);
+        }),
+      );
+    }
     return Promise.all(jobs);
+  }
+
+  /** Rocket beam across a line, or a ring for a bomb. Visual only. */
+  private blastFx(kind: 'rocketRow' | 'rocketCol' | 'bomb', origin: { r: number; c: number }): void {
+    const w = boardToWorld(origin.r, origin.c);
+    if (kind === 'bomb') {
+      this.shockwave(w.x, w.z, 1.6);
+      return;
+    }
+    const beam = this.beams.find((b) => !b.visible);
+    if (!beam) return;
+    beam.visible = true;
+    const mat = beam.material as THREE.MeshBasicMaterial;
+    const horizontal = kind === 'rocketRow';
+    beam.position.x = horizontal ? 0 : w.x;
+    beam.position.z = horizontal ? w.z : 0;
+    void this.tw.to(this.dur(0.32), (t) => {
+      const len = 6.4 * Math.min(1, t * 2.2);
+      const thick = 0.75 * (1 - t) + 0.12;
+      beam.scale.set(horizontal ? len : thick, 1, horizontal ? thick : len);
+      mat.opacity = 0.85 * (1 - t);
+      if (t >= 1) beam.visible = false;
+    }, ease.outCubic);
   }
 
   private animFall(step: Extract<TimelineStep, { kind: 'fall' }>): Promise<unknown> {
@@ -418,8 +575,8 @@ export class BoardView {
   }
 
   private animSpawn(step: Extract<TimelineStep, { kind: 'spawn' }>): Promise<unknown> {
-    const jobs = step.pieces.map(({ id, color, at, dropDistance }) => {
-      const p = this.acquire(id, color);
+    const jobs = step.pieces.map(({ id, tile, at, dropDistance }) => {
+      const p = this.acquire(id, tile);
       const w = boardToWorld(at.r, at.c);
       const z0 = w.z - 0.6 - 0.15 * dropDistance;
       const y0 = PARCEL_Y + 1.6;
@@ -455,18 +612,20 @@ export class BoardView {
     await Promise.all(jobs);
   }
 
-  private shockwave(): void {
+  private shockwave(x = 0, z = 0, size = 4): void {
     this.ring.visible = true;
+    this.ring.position.x = x;
+    this.ring.position.z = z;
     const mat = this.ring.material as THREE.MeshBasicMaterial;
     void this.tw.to(0.45, (t) => {
-      this.ring.scale.setScalar(0.5 + t * 4);
+      this.ring.scale.setScalar(0.5 + t * size);
       mat.opacity = 0.7 * (1 - t);
       if (t >= 1) this.ring.visible = false;
     }, ease.outCubic);
   }
 
-  private burst(x: number, z: number, color: Color, n: number): void {
-    tmpColor.set(PARCEL_HEX[color]);
+  private burst(x: number, z: number, hex: string, n: number): void {
+    tmpColor.set(hex);
     for (let k = 0; k < n; k++) {
       const i = this.pNext;
       this.pNext = (this.pNext + 1) % PARTICLE_POOL;
@@ -489,6 +648,9 @@ export class BoardView {
     const mat = this.highlight.material as THREE.MeshBasicMaterial;
     mat.opacity += (this.highlightTarget - mat.opacity) * Math.min(1, d * 14);
     this.highlight.visible = mat.opacity > 0.01 && this.highlightRow >= 0;
+    const cmat = this.colHighlight.material as THREE.MeshBasicMaterial;
+    cmat.opacity += (this.colHighlightTarget - cmat.opacity) * Math.min(1, d * 14);
+    this.colHighlight.visible = cmat.opacity > 0.01 && this.highlightCol >= 0;
 
     if (this.pActive > 0) {
       let any = false;
