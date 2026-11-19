@@ -1,0 +1,21 @@
+/* ART_DIRECTION §2 tokens */
+:root {
+  --bg: #fff2dd;
+  --panel: #fffbf3;
+  --text: #493b36;
+  --text-2: #77675e;
+  --red: #ef7279;
+  --blue: #65b8e9;
+  --green: #72cbb1;
+  --yellow: #f1c66c;
+  --cta: #f27870;
+  --cta-ink: #c9534c;
+  --success: #56ae88;
+  --wood: #d9a86c;
+  --wood-dark: #b98349;
+  --sky-top: #bfe6f7;
+  --radius: 18px;
+  --shadow: 0 4px 0 rgba(150, 105, 60, 0.25), 0 10px 22px rgba(120, 80, 40, 0.12);
+  --font: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
