@@ -61,7 +61,7 @@
     },
     {
       "id": 3,
-      "name": "收集紅箱",
+      "name": "目標追蹤",
       "width": 6,
       "height": 6,
       "moveLimit": 5,
