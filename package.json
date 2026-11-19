@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc -b",
     "validate:levels": "bun scripts/validate-levels.ts",
+    "generate:levels": "bun scripts/generate-levels.ts",
     "e2e": "playwright test --trace off"
   },
   "dependencies": {

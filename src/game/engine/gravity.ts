@@ -1,33 +1,26 @@
 import { nextColor } from './rng';
-import type { Board, Color, FallStep, SpawnStep, StableBoard } from './types';
+import type { Board, Cell, FallStep, SpawnStep, StableBoard } from './types';
 
-/**
- * Per-column gravity (GAME_RULES §4). Non-null cells keep their top-to-bottom order
- * and compress to the bottom. Mutates nothing; returns the new board and fall steps
- * (only for cells whose row actually changed).
- */
+/** Per-column gravity: every tile (parcels and crates) compresses down keeping order (GAME_RULES §4). */
 export function applyGravity(board: Board): { board: Board; falls: FallStep[] } {
   const h = board.length;
   const w = board[0]?.length ?? 0;
-  const out: Board = Array.from({ length: h }, () => new Array<Color | null>(w).fill(null));
+  const out: Board = Array.from({ length: h }, () => new Array<Cell>(w).fill(null));
   const falls: FallStep[] = [];
   for (let c = 0; c < w; c++) {
     let write = h - 1;
     for (let r = h - 1; r >= 0; r--) {
-      const v = board[r]![c];
-      if (v === null || v === undefined) continue;
-      out[write]![c] = v;
-      if (write !== r) falls.push({ from: { r, c }, to: { r: write, c }, color: v });
+      const t = board[r]![c];
+      if (!t) continue;
+      out[write]![c] = t;
+      if (write !== r) falls.push({ from: { r, c }, to: { r: write, c } });
       write--;
     }
   }
   return { board: out, falls };
 }
 
-/**
- * Fill empty cells. Order is exact: c = 0..w-1, and inside each column from the
- * top-most empty cell downward, each drawing one xorshift32 sample.
- */
+/** Refill: c = 0..w-1, top empty cell downward, one xorshift32 draw each. Only plain parcels spawn. */
 export function refill(board: Board, rngState: number): { board: StableBoard; spawns: SpawnStep[]; rngState: number } {
   const h = board.length;
   const w = board[0]?.length ?? 0;
@@ -36,13 +29,13 @@ export function refill(board: Board, rngState: number): { board: StableBoard; sp
   let state = rngState;
   for (let c = 0; c < w; c++) {
     let empties = 0;
-    for (let r = 0; r < h; r++) if (out[r]![c] === null) empties++;
+    for (let r = 0; r < h; r++) if (!out[r]![c]) empties++;
     for (let r = 0; r < h; r++) {
-      if (out[r]![c] !== null) continue;
-      const draw = nextColor(state);
-      state = draw.state;
-      out[r]![c] = draw.color;
-      spawns.push({ position: { r, c }, color: draw.color, dropDistance: empties });
+      if (out[r]![c]) continue;
+      const d = nextColor(state);
+      state = d.state;
+      out[r]![c] = { kind: 'parcel', color: d.color };
+      spawns.push({ position: { r, c }, color: d.color, dropDistance: empties });
     }
   }
   return { board: out as StableBoard, spawns, rngState: state };

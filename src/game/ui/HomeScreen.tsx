@@ -1,5 +1,6 @@
 import { useGame } from '../state/gameStore';
 import { ParcelIcon } from './ParcelIcon';
+import { LEVELS } from '../data/levels';
 
 export function HomeScreen() {
   const last = useGame((s) => s.save.lastLevelId);
@@ -28,7 +29,7 @@ export function HomeScreen() {
           {done > 0 ? `繼續第 ${last} 關` : '開始配送'}
         </button>
         <button className="btn secondary" onClick={() => goto('select')}>
-          選擇關卡（已完成 {done}/10）
+          選擇關卡（已完成 {done}/{LEVELS.length}）
         </button>
         <button className="btn ghost" onClick={() => toggleSettings(true)}>
           設定

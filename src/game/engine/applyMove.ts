@@ -1,7 +1,7 @@
-import { addCounts, emptyColorCount, objectiveProgress, objectivesMet } from './objectives';
 import { parseBoardRows } from './board';
+import { addCounts, cloneProgress, emptyProgress, objectiveProgress, objectivesMet } from './objectives';
 import { resolveBoard } from './resolve';
-import { shiftRow } from './shift';
+import { applyShift } from './shift';
 import {
   BOARD_SIZE,
   EngineError,
@@ -9,11 +9,12 @@ import {
   type GameState,
   type LevelDefinition,
   type Move,
+  type Progress,
   type TurnEvent,
   type TurnResult,
 } from './types';
 
-/** Fresh state for a level. Restart = call this again (resets board, seed, moves, progress). */
+/** Fresh state for a level. Restart = call this again. */
 export function createGameState(level: LevelDefinition): GameState {
   return {
     ruleVersion: RULE_VERSION,
@@ -21,82 +22,80 @@ export function createGameState(level: LevelDefinition): GameState {
     board: parseBoardRows(level.board),
     moveLimit: level.moveLimit,
     remainingMoves: level.moveLimit,
+    allowColumnMoves: level.allowColumnMoves,
     objectives: level.objectives.map((o) => ({ ...o })),
-    collected: emptyColorCount(),
+    progress: emptyProgress(),
     rngState: level.seed >>> 0,
     comboCount: 0,
     maxCombo: 0,
     totalCleared: 0,
+    specialsCreated: 0,
     score: 0,
     turn: 0,
     status: 'ready',
   };
 }
 
-export function isValidMove(move: unknown): move is Move {
+export function isValidMove(move: unknown, allowColumnMoves = true): move is Move {
   if (typeof move !== 'object' || move === null) return false;
-  const m = move as Partial<Move>;
-  return (
-    typeof m.row === 'number' &&
-    Number.isInteger(m.row) &&
-    m.row >= 0 &&
-    m.row < BOARD_SIZE &&
-    (m.direction === 'left' || m.direction === 'right')
-  );
+  const m = move as Record<string, unknown>;
+  if (typeof m.index !== 'number' || !Number.isInteger(m.index) || m.index < 0 || m.index >= BOARD_SIZE) return false;
+  if (m.line === 'row') return m.direction === 'left' || m.direction === 'right';
+  if (m.line === 'col') return allowColumnMoves && (m.direction === 'up' || m.direction === 'down');
+  return false;
+}
+
+function addProgress(a: Progress, b: Progress): Progress {
+  return { collected: addCounts(a.collected, b.collected), cratesCleared: a.cratesCleared + b.cratesCleared, iceBroken: a.iceBroken + b.iceBroken };
 }
 
 /**
- * The single entry point for a player action. Synchronously computes the whole turn
- * (shift, every cascade round, objectives, win/lose) and returns the committed state
- * plus the event list the presenter animates. Never mutates `state`.
+ * The single entry point for a player action: synchronously computes the whole turn and
+ * returns the committed state plus the events the presenter animates. Never mutates `state`.
  */
 export function applyMove(state: GameState, move: Move, maxRounds?: number): TurnResult {
-  if (state.status !== 'ready') {
-    throw new EngineError('ENGINE_NOT_READY', `cannot move while status=${state.status}`);
-  }
-  if (state.remainingMoves <= 0) {
-    throw new EngineError('ENGINE_NOT_READY', 'no moves remaining');
-  }
-  if (!isValidMove(move)) {
-    throw new EngineError('ENGINE_INVALID_MOVE', `invalid move ${JSON.stringify(move)}`);
-  }
+  if (state.status !== 'ready') throw new EngineError('ENGINE_NOT_READY', `cannot move while status=${state.status}`);
+  if (state.remainingMoves <= 0) throw new EngineError('ENGINE_NOT_READY', 'no moves remaining');
+  if (!isValidMove(move, state.allowColumnMoves)) throw new EngineError('ENGINE_INVALID_MOVE', `invalid move ${JSON.stringify(move)}`);
 
   const turn = state.turn + 1;
-  const events: TurnEvent[] = [{ type: 'ROW_SHIFTED', turn, row: move.row, direction: move.direction }];
-  const shifted = shiftRow(state.board, move.row, move.direction);
-  const res = resolveBoard(shifted, state.rngState, turn, maxRounds);
+  const events: TurnEvent[] = [{ type: 'LINE_SHIFTED', turn, move: { ...move } }];
+  const shifted = applyShift(state.board, move);
+  const res = resolveBoard(shifted as GameState['board'], state.rngState, turn, move, maxRounds);
   events.push(...res.events);
 
-  const collected = res.rounds > 0 ? addCounts(state.collected, res.removed) : { ...state.collected };
+  const progress = res.rounds > 0 ? addProgress(state.progress, res.gained) : cloneProgress(state.progress);
   const remainingMoves = state.remainingMoves - 1;
-  const progress = objectiveProgress(state.objectives, collected);
-  events.push({ type: 'OBJECTIVES_UPDATED', turn, collected: { ...collected }, progress });
+  events.push({ type: 'OBJECTIVES_UPDATED', turn, progress: cloneProgress(progress), objectives: objectiveProgress(state.objectives, progress) });
 
-  // Settlement order (GAME_RULES §6): cascades first, then objectives (win beats out-of-moves).
-  const won = objectivesMet(state.objectives, collected);
+  // Settlement (GAME_RULES §7): all cascades first, then objectives; a win beats running out of moves.
+  const won = objectivesMet(state.objectives, progress);
   const status = won ? 'won' : remainingMoves === 0 ? 'lost' : 'ready';
   events.push({ type: 'TURN_COMPLETED', turn, remainingMoves });
   if (status === 'won') events.push({ type: 'LEVEL_WON', turn });
   if (status === 'lost') events.push({ type: 'LEVEL_LOST', turn });
 
-  const nextState: GameState = {
-    ...state,
-    board: res.board,
-    remainingMoves,
-    objectives: state.objectives.map((o) => ({ ...o })),
-    collected,
-    rngState: res.rngState,
-    comboCount: res.rounds,
-    maxCombo: Math.max(state.maxCombo, res.rounds),
-    totalCleared: state.totalCleared + res.removedCells,
-    score: state.score + res.score,
-    turn,
-    status,
+  return {
+    nextState: {
+      ...state,
+      board: res.board,
+      remainingMoves,
+      objectives: state.objectives.map((o) => ({ ...o })),
+      progress,
+      rngState: res.rngState,
+      comboCount: res.rounds,
+      maxCombo: Math.max(state.maxCombo, res.rounds),
+      totalCleared: state.totalCleared + res.removedCells,
+      specialsCreated: state.specialsCreated + res.specialsCreated,
+      score: state.score + res.score,
+      turn,
+      status,
+    },
+    events,
   };
-  return { nextState, events };
 }
 
-/** Replays a move list from the level's initial state. Stops early once the game ends. */
+/** Replays moves from the level start; stops once the game ends. */
 export function replay(level: LevelDefinition, moves: Move[]): { state: GameState; events: TurnEvent[] } {
   let state = createGameState(level);
   const all: TurnEvent[] = [];
@@ -109,4 +108,17 @@ export function replay(level: LevelDefinition, moves: Move[]): { state: GameStat
   return { state, events: all };
 }
 
-export const emptyCollected = emptyColorCount;
+/** All legal moves in fixed order: rows 0..5 (left, right), then columns 0..5 (up, down) if allowed. */
+export function legalMoves(allowColumnMoves: boolean): Move[] {
+  const out: Move[] = [];
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    out.push({ line: 'row', index: i, direction: 'left' }, { line: 'row', index: i, direction: 'right' });
+  }
+  if (allowColumnMoves)
+    for (let i = 0; i < BOARD_SIZE; i++) out.push({ line: 'col', index: i, direction: 'up' }, { line: 'col', index: i, direction: 'down' });
+  return out;
+}
+
+export function moveLabel(m: Move): string {
+  return `${m.line === 'row' ? 'R' : 'C'}${m.index}${m.direction[0]!.toUpperCase()}`;
+}

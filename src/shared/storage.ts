@@ -10,6 +10,8 @@ export interface SaveData {
   graphicsQuality: Quality;
 }
 
+/** Highest level id in the shipped level file (levels.v2.json). */
+export const MAX_LEVEL_ID = 30;
 const KEY = 'parcel-pop-express.save';
 
 export function defaultQuality(): Quality {
@@ -48,9 +50,9 @@ export function sanitize(raw: unknown): SaveData {
   return {
     schemaVersion: 1,
     completedLevelIds: Array.isArray(o.completedLevelIds)
-      ? [...new Set(o.completedLevelIds.filter((n): n is number => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= 10))]
+      ? [...new Set(o.completedLevelIds.filter((n): n is number => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= MAX_LEVEL_ID))]
       : d.completedLevelIds,
-    lastLevelId: Number.isInteger(o.lastLevelId) && (o.lastLevelId as number) >= 1 && (o.lastLevelId as number) <= 10 ? (o.lastLevelId as number) : 1,
+    lastLevelId: Number.isInteger(o.lastLevelId) && (o.lastLevelId as number) >= 1 && (o.lastLevelId as number) <= MAX_LEVEL_ID ? (o.lastLevelId as number) : 1,
     soundEnabled: typeof o.soundEnabled === 'boolean' ? o.soundEnabled : d.soundEnabled,
     reducedMotion: typeof o.reducedMotion === 'boolean' ? o.reducedMotion : d.reducedMotion,
     graphicsQuality: o.graphicsQuality === 'low' || o.graphicsQuality === 'medium' || o.graphicsQuality === 'high' ? o.graphicsQuality : d.graphicsQuality,

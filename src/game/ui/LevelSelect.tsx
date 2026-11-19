@@ -1,6 +1,6 @@
 import { useGame } from '../state/gameStore';
 import { LEVELS } from '../data/levels';
-import { ParcelIcon } from './ParcelIcon';
+import { GoalIcon } from './ParcelIcon';
 
 export function LevelSelect() {
   const done = useGame((s) => s.save.completedLevelIds);
@@ -22,8 +22,13 @@ export function LevelSelect() {
               <span className="lv-name">{l.name}</span>
               <span className="lv-goals">
                 {l.objectives.map((o) => (
-                  <ParcelIcon key={o.color} color={o.color} size={20} />
+                  <GoalIcon key={o.type === 'collectColor' ? o.color : o.type} type={o.type} color={o.type === 'collectColor' ? o.color : undefined} size={20} />
                 ))}
+                {l.allowColumnMoves && (
+                  <span className="lv-cols" aria-label="可上下移動" title="可上下移動">
+                    ↕
+                  </span>
+                )}
               </span>
               {done.includes(l.id) && <span className="badge" aria-label="已通關">✓</span>}
             </button>

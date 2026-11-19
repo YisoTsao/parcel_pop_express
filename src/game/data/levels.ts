@@ -1,4 +1,4 @@
-import raw from './levels.v1.json';
+import raw from './levels.v2.json';
 import { loadLevelFile, type LevelDefinition } from '../engine';
 
 /** Validated at import time; an invalid file fails loudly instead of silently playing. */

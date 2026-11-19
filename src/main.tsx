@@ -3,6 +3,7 @@ import { App } from './app/App';
 import { useGame } from './game/state/gameStore';
 import { useLayout } from './game/render3d/layoutStore';
 import { LEVELS } from './game/data/levels';
+import { boardToRows } from './game/engine';
 import './styles/tokens.css';
 import './styles/game.css';
 
@@ -15,6 +16,11 @@ if (import.meta.env.DEV || new URLSearchParams(location.search).has('e2e')) {
   (window as unknown as { __ppe: unknown }).__ppe = {
     state: () => useGame.getState(),
     rows: () => useLayout.getState().rows,
+    cols: () => useLayout.getState().cols,
+    board: () => {
+      const g = useGame.getState().game;
+      return g ? boardToRows(g.board) : null;
+    },
     levels: () => LEVELS,
   };
 }

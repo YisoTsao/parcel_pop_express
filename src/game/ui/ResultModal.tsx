@@ -1,7 +1,7 @@
 import { useGame } from '../state/gameStore';
 import { LEVELS } from '../data/levels';
 import { objectiveProgress } from '../engine';
-import { ParcelIcon } from './ParcelIcon';
+import { GoalIcon } from './ParcelIcon';
 
 export function ResultModal() {
   const phase = useGame((s) => s.phase);
@@ -9,7 +9,7 @@ export function ResultModal() {
   const { restart, nextLevel, goto } = useGame.getState();
   if (phase !== 'result' || !game) return null;
   const won = game.status === 'won';
-  const progress = objectiveProgress(game.objectives, game.collected);
+  const progress = objectiveProgress(game.objectives, game.progress);
   const isLast = game.levelId === LEVELS[LEVELS.length - 1]!.id;
 
   return (
@@ -22,8 +22,8 @@ export function ResultModal() {
         <p className="sub">第 {game.levelId} 關</p>
         <ul className="goal-list result-goals">
           {progress.map((p) => (
-            <li key={p.color} className={`goal ${p.done ? 'done' : 'miss'}`}>
-              <ParcelIcon color={p.color} size={34} />
+            <li key={p.color ?? p.type} className={`goal ${p.done ? 'done' : 'miss'}`}>
+              <GoalIcon type={p.type} color={p.color} size={34} />
               <span className="goal-count">
                 {p.current}/{p.target}
               </span>
@@ -40,6 +40,10 @@ export function ResultModal() {
             <div>
               <dt>清除貨箱</dt>
               <dd>{game.totalCleared}</dd>
+            </div>
+            <div>
+              <dt>特殊箱</dt>
+              <dd>{game.specialsCreated}</dd>
             </div>
             <div>
               <dt>最高連鎖</dt>

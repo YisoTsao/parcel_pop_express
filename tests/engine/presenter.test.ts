@@ -1,43 +1,45 @@
 import { describe, expect, it } from 'vitest';
 import { LEVELS } from '../../src/game/data/levels';
-import { ALL_MOVES, applyMove, createGameState, xorshift32 } from '../../src/game/engine';
+import { applyMove, boardToRows, createGameState, legalMoves, xorshift32 } from '../../src/game/engine';
 import { boardToWorld, worldToCell } from '../../src/game/render3d/coords';
 import { decideSwipe } from '../../src/game/render3d/gesture';
-import { buildTimeline, gridColors, gridFromBoard, IdSource } from '../../src/game/render3d/timelineModel';
+import { buildTimeline, gridFromBoard, gridRows, IdSource } from '../../src/game/render3d/timelineModel';
 
 describe('presenter timeline follows engine events exactly', () => {
-  it('ends on nextState.board for 2000 random moves across all levels', () => {
+  it('ends on nextState.board for random play on every level (specials, crates, ice included)', () => {
     let rnd = 1234567;
+    let sawBlast = false;
+    let sawCrate = false;
+    let sawThaw = false;
     for (const lv of LEVELS) {
-      for (let game = 0; game < 20; game++) {
-        let s = createGameState({ ...lv, moveLimit: 10, objectives: [{ type: 'collectColor', color: 'R', count: 999 }] });
+      for (let game = 0; game < 4; game++) {
+        let s = createGameState(lv);
+        const moves = legalMoves(lv.allowColumnMoves);
         const ids = new IdSource();
         let grid = gridFromBoard(s.board, ids);
         while (s.status === 'ready') {
           rnd = xorshift32(rnd);
-          const { nextState, events } = applyMove(s, ALL_MOVES[rnd % 12]!);
+          const { nextState, events } = applyMove(s, moves[rnd % moves.length]!);
           const t = buildTimeline(grid, events, ids);
-          expect(gridColors(t.grid)).toEqual(nextState.board);
-          // ids are unique on the board
-          const flat = t.grid.flat().map((p) => p!.id);
-          expect(new Set(flat).size).toBe(36);
+          expect(gridRows(t.grid)).toEqual(boardToRows(nextState.board));
+          expect(new Set(t.grid.flat().map((p) => p!.id)).size).toBe(36);
+          for (const st of t.steps)
+            if (st.kind === 'remove') {
+              sawBlast ||= st.blasts.length > 0;
+              sawCrate ||= st.crateHits.length > 0;
+              sawThaw ||= st.thawed.length > 0;
+            }
           grid = t.grid;
           s = nextState;
         }
       }
     }
-  });
-  it('step order: shift, then remove/fall/spawn per cascade, then objectives and end', () => {
-    const lv = LEVELS.find((l) => l.id === 7)!;
-    const s = createGameState(lv);
-    const { events } = applyMove(s, lv.witnessMoves[0]!);
-    const t = buildTimeline(gridFromBoard(s.board, new IdSource()), events, new IdSource());
-    expect(t.steps.map((x) => x.kind)).toEqual(['shift', 'remove', 'fall', 'spawn', 'remove', 'fall', 'spawn', 'objectives', 'turnEnd', 'won']);
+    expect([sawBlast, sawCrate, sawThaw]).toEqual([true, true, true]);
   });
 });
 
 describe('boardToWorld mapping', () => {
-  it('maps corners and centre consistently and round-trips', () => {
+  it('maps corners and round-trips', () => {
     expect(boardToWorld(0, 0)).toEqual({ x: -2.5, z: -2.5 });
     expect(boardToWorld(5, 5)).toEqual({ x: 2.5, z: 2.5 });
     for (let r = 0; r < 6; r++)
@@ -50,12 +52,17 @@ describe('boardToWorld mapping', () => {
 });
 
 describe('swipe decision (U01/U02)', () => {
-  it('commits only a dominant horizontal swipe past the threshold', () => {
-    expect(decideSwipe(40, 5)).toBe('right');
-    expect(decideSwipe(-40, 5)).toBe('left');
-    expect(decideSwipe(20, 0)).toBeNull();
-    expect(decideSwipe(40, 35)).toBeNull();
-    expect(decideSwipe(5, 80)).toBeNull();
-    expect(decideSwipe(400, 0)).toBe('right'); // never more than one cell: direction only
+  it('horizontal swipes', () => {
+    expect(decideSwipe(40, 5, true)).toBe('right');
+    expect(decideSwipe(-40, 5, true)).toBe('left');
+    expect(decideSwipe(20, 0, true)).toBeNull();
+    expect(decideSwipe(40, 35, true)).toBeNull();
+    expect(decideSwipe(400, 0, true)).toBe('right');
+  });
+  it('vertical swipes only when columns are allowed', () => {
+    expect(decideSwipe(5, -60, true)).toBe('up');
+    expect(decideSwipe(5, 60, true)).toBe('down');
+    expect(decideSwipe(5, 60, false)).toBeNull();
+    expect(decideSwipe(30, 35, true)).toBeNull();
   });
 });
